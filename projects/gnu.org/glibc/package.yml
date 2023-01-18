@@ -1,0 +1,61 @@
+distributable:
+  url: https://ftp.gnu.org/gnu/glibc/glibc-{{ version.raw }}.tar.gz
+  strip-components: 1
+
+versions:
+  #TODO HTML listing: https://ftp.gnu.org/gnu/glibc/
+  - 2.24 # This is 2014; it should allow us to support just about anything running.
+
+build:
+  dependencies:
+    gnu.org/make: '>=3.79'
+    gnu.org/gawk: '>=3'
+    gnu.org/gcc: '*'
+    gnu.org/binutils: '*'
+    gnu.org/texinfo: '*'
+    gnu.org/gettext: '*'
+    gnu.org/patch: '*'
+    perl.org: '*'
+    curl.se: '*'
+  script: |
+    if test "{{hw.platform}}" != "linux"; then
+      echo "glibc is only supported on Linux"
+      touch {{prefix}}/linux-only
+      exit 0
+    fi
+
+    # ./configure doesn't recognize $CC versions >9.x
+    patch -p1 <props/cc-version-10+.diff
+
+    # https://sourceware.org/git/gitweb.cgi?p=glibc.git;h=87a698a21646b7ee620923ef5ffa9735471a8ddd
+    for DIFF in $DIFFS; do
+      curl | patch -p1
+    done
+
+    mkdir build
+    cd build
+
+    ../configure $ARGS
+    make --jobs {{ hw.concurrency }} all
+    make install
+  test:
+    make test
+  env:
+    DIFFS:
+      - https://sourceware.org/git/?p=glibc.git;a=blobdiff_plain;f=configure;h=3b98ec312fc9c8cc605453654a6ca72106ca0185;hp=b959d2d9885e53e6adcd7037f8382720555abd40;hb=87a698a21646b7ee620923ef5ffa9735471a8ddd;hpb=24fdebe75f6df4c0edacb3f0cdc030913920aa4c
+      - https://sourceware.org/git/?p=glibc.git;a=blobdiff_plain;f=configure.ac;h=e20034f301fd7d04ab1c4499bfc1eacdb316570c;hp=49b900c1ed68fa4dd1dadca809ceb6e8b237a89c;hb=87a698a21646b7ee620923ef5ffa9735471a8ddd;hpb=24fdebe75f6df4c0edacb3f0cdc030913920aa4c
+    CFLAGS:
+      - -O2
+      - -fPIC
+      # - -U_FORTIFY_SOURCE
+      # - -fno-stack-protector
+    LDFLAGS:
+    ARGS:
+      - --prefix={{ prefix }}
+      - --disable-debug
+      - --disable-dependency-tracking
+      - --disable-silent-rules
+      - --enable-obsolete-rpc
+      - --without-selinux
+
+test: false
