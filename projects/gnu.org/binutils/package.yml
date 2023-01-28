@@ -19,9 +19,20 @@ build:
     linux:
       gnu.org/gcc: '*'
   script: |
-    ./configure --prefix={{ prefix }}
+    ./configure $ARGS
     make --jobs {{ hw.concurrency }}
     make install
+  env:
+    ARGS:
+      - --prefix={{ prefix }}
+      - --enable-gold
+      - --enable-ld=default
+      - --enable-plugins
+      - --enable-shared
+      - --disable-werror
+    linux:
+      ARGS:
+        - --enable-64-bit-bfd
 
 test:
   script: objdump -x $(which objdump) | grep -s $TEST_STRING

@@ -4,19 +4,27 @@ distributable:
 
 versions:
   #TODO HTML listing: https://ftp.gnu.org/gnu/glibc/
-  - 2.24 # This is 2014; it should allow us to support just about anything running.
+  - 2.28
+
+runtime:
+  env:
+    PATH: ${{prefix}}/sbin:$PATH
+    # FIXME: version.raw not recognized here
+    #CFLAGS: -Wl,--dynamic-linker={{prefix}}/lib/ld-{{version.raw}}.so
+    CFLAGS: -Wl,--dynamic-linker={{prefix}}/lib/ld-2.28.so
 
 build:
   dependencies:
     gnu.org/make: '>=3.79'
     gnu.org/gawk: '>=3'
     gnu.org/gcc: '*'
-    gnu.org/binutils: '*'
-    gnu.org/texinfo: '*'
     gnu.org/gettext: '*'
+    gnu.org/texinfo: '*'
+    gnu.org/bison: '*'
     gnu.org/patch: '*'
     perl.org: '*'
     curl.se: '*'
+  working-directory: build
   script: |
     if test "{{hw.platform}}" != "linux"; then
       echo "glibc is only supported on Linux"
@@ -24,38 +32,122 @@ build:
       exit 0
     fi
 
-    # ./configure doesn't recognize $CC versions >9.x
-    patch -p1 <props/cc-version-10+.diff
-
-    # https://sourceware.org/git/gitweb.cgi?p=glibc.git;h=87a698a21646b7ee620923ef5ffa9735471a8ddd
     for DIFF in $DIFFS; do
-      curl | patch -p1
+        curl "$DIFF" | patch -p1 -d..
     done
 
-    mkdir build
-    cd build
-
     ../configure $ARGS
-    make --jobs {{ hw.concurrency }} all
+    make all -j {{hw.concurrency}}
     make install
+
+    cd {{prefix}}/bin
+    for s in $SCRIPTS; do
+      sed -i.bak 's|{{prefix}}|"$(cd "$(dirname "$0")/.." \&\& pwd)"|' $s
+      rm $s.bak
+    done
   test:
     make test
   env:
     DIFFS:
       - https://sourceware.org/git/?p=glibc.git;a=blobdiff_plain;f=configure;h=3b98ec312fc9c8cc605453654a6ca72106ca0185;hp=b959d2d9885e53e6adcd7037f8382720555abd40;hb=87a698a21646b7ee620923ef5ffa9735471a8ddd;hpb=24fdebe75f6df4c0edacb3f0cdc030913920aa4c
       - https://sourceware.org/git/?p=glibc.git;a=blobdiff_plain;f=configure.ac;h=e20034f301fd7d04ab1c4499bfc1eacdb316570c;hp=49b900c1ed68fa4dd1dadca809ceb6e8b237a89c;hb=87a698a21646b7ee620923ef5ffa9735471a8ddd;hpb=24fdebe75f6df4c0edacb3f0cdc030913920aa4c
-    CFLAGS:
-      - -O2
-      - -fPIC
-      # - -U_FORTIFY_SOURCE
-      # - -fno-stack-protector
-    LDFLAGS:
+    SCRIPTS:
+      - catchsegv
+      - ldd
+      - mtrace
+      - sotruss
+      - tzselect
+      - xtrace
     ARGS:
       - --prefix={{ prefix }}
+      - --enable-static-pie
       - --disable-debug
       - --disable-dependency-tracking
       - --disable-silent-rules
+      - --disable-werror
       - --enable-obsolete-rpc
+      - --without-gd
       - --without-selinux
+      - --enable-kernel=2.6.0
+      - --with-binutils={{deps.gnu.org/binutils.prefix}}/bin
 
-test: false
+test:
+  dependencies:
+    gnu.org/gcc: '*'
+  script: |
+    test "{{hw.platform}}" = "darwin" && exit 0
+    case "{{hw.arch}}" in
+      x86-64) ARCH=x86_64;;
+      aarch64) ARCH=aarch64;;
+      *)
+        echo "Unsupported architecture {{hw.arch}}"
+        exit 1
+        ;;
+    esac
+    cp $FIXTURE test.c
+    gcc \
+      -Wl,--rpath="{{prefix}}/lib" \
+      -std=c11 \
+      -o test \
+      -v \
+      $CFLAGS \
+      test.c \
+      -pthread \
+      -static \
+      -pie
+    ./test
+  fixture: |
+    #define _GNU_SOURCE
+    #include <assert.h>
+    #include <gnu/libc-version.h>
+    #include <stdatomic.h>
+    #include <stdio.h>
+    #include <threads.h>
+
+    atomic_int acnt;
+    int cnt;
+
+    int f(void* thr_data) {
+        for(int n = 0; n < 1000; ++n) {
+            ++cnt;
+            ++acnt;
+        }
+        return 0;
+    }
+
+    int main(int argc, char **argv) {
+        /* Basic library version check. */
+        printf("gnu_get_libc_version() = %s\n", gnu_get_libc_version());
+
+        thrd_t thr[10];
+        for(int n = 0; n < 10; ++n)
+            thrd_create(&thr[n], f, NULL);
+        for(int n = 0; n < 10; ++n)
+            thrd_join(thr[n], NULL);
+        printf("The atomic counter is %u\n", acnt);
+        printf("The non-atomic counter is %u\n", cnt);
+    }
+
+provides:
+  - bin/catchsegv
+  - bin/gencat
+  - bin/getconf
+  - bin/getent
+  - bin/iconv
+  - bin/ldd
+  - bin/locale
+  - bin/localedef
+  - bin/makedb
+  - bin/mtrace
+  - bin/pcprofiledump
+  - bin/pldd
+  - bin/rpcgen
+  - bin/sotruss
+  - bin/sprof
+  - bin/tzselect
+  - bin/xtrace  - sbin/iconvconfig
+  - sbin/ldconfig
+  - sbin/nscd
+  - sbin/sln
+  - sbin/zdump
+  - sbin/zic
