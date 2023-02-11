@@ -14,13 +14,14 @@ build:
     tea.xyz/gx/make: '*'
     gnu.org/bison: '*'
     gnu.org/texinfo: '*'
+    gnu.org/libtool: '*'
     darwin:
       tea.xyz/gx/cc: c99
     linux:
       gnu.org/gcc: '*'
   script: |
     ./configure $ARGS
-    make --jobs {{ hw.concurrency }}
+    make #--jobs {{ hw.concurrency }}
     make install
   env:
     ARGS:
@@ -28,11 +29,11 @@ build:
       - --enable-gold
       - --enable-ld=default
       - --enable-plugins
-      - --enable-shared
       - --disable-werror
+      # - --enable-64-bit-bfd
     linux:
       ARGS:
-        - --enable-64-bit-bfd
+        - --enable-shared
 
 test:
   script: objdump -x $(which objdump) | grep -s $TEST_STRING
