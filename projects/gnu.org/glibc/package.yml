@@ -72,8 +72,8 @@ build:
       - --with-binutils={{deps.gnu.org/binutils.prefix}}/bin
     CFLAGS: -O2
     linux/x86-64:
-      CFLAGS: -fPIC
-      CXXFLAGS: -fPIC
+      CFLAGS: -O2 -fPIC
+      CXXFLAGS: -O2 -fPIC
       LDFLAGS: -pie
 
 test:
