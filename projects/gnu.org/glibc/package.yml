@@ -22,9 +22,9 @@ build:
     gnu.org/gettext: '*'
     gnu.org/texinfo: '*'
     gnu.org/bison: '*'
-    gnu.org/patch: '*'
+    # gnu.org/patch: '*'
     perl.org: '*'
-    curl.se: '*'
+    # curl.se: '*'
   working-directory: build
   script: |
     if test "{{hw.platform}}" != "linux"; then
@@ -34,9 +34,9 @@ build:
       exit 0
     fi
 
-    for DIFF in $DIFFS; do
-        curl "$DIFF" | patch -p1 -d..
-    done
+    # for DIFF in $DIFFS; do
+        # curl "$DIFF" | patch -p1 -d..
+    # done
 
     ../configure $ARGS
     make all -j {{hw.concurrency}}
@@ -50,9 +50,9 @@ build:
   test:
     make test
   env:
-    DIFFS:
-      - https://sourceware.org/git/?p=glibc.git;a=blobdiff_plain;f=configure;h=3b98ec312fc9c8cc605453654a6ca72106ca0185;hp=b959d2d9885e53e6adcd7037f8382720555abd40;hb=87a698a21646b7ee620923ef5ffa9735471a8ddd;hpb=24fdebe75f6df4c0edacb3f0cdc030913920aa4c
-      - https://sourceware.org/git/?p=glibc.git;a=blobdiff_plain;f=configure.ac;h=e20034f301fd7d04ab1c4499bfc1eacdb316570c;hp=49b900c1ed68fa4dd1dadca809ceb6e8b237a89c;hb=87a698a21646b7ee620923ef5ffa9735471a8ddd;hpb=24fdebe75f6df4c0edacb3f0cdc030913920aa4c
+    # DIFFS:
+    #   - https://sourceware.org/git/?p=glibc.git;a=blobdiff_plain;f=configure;h=3b98ec312fc9c8cc605453654a6ca72106ca0185;hp=b959d2d9885e53e6adcd7037f8382720555abd40;hb=87a698a21646b7ee620923ef5ffa9735471a8ddd;hpb=24fdebe75f6df4c0edacb3f0cdc030913920aa4c
+    #   - https://sourceware.org/git/?p=glibc.git;a=blobdiff_plain;f=configure.ac;h=e20034f301fd7d04ab1c4499bfc1eacdb316570c;hp=49b900c1ed68fa4dd1dadca809ceb6e8b237a89c;hb=87a698a21646b7ee620923ef5ffa9735471a8ddd;hpb=24fdebe75f6df4c0edacb3f0cdc030913920aa4c
     SCRIPTS:
       - catchsegv
       - ldd
