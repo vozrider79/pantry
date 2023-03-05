@@ -70,6 +70,10 @@ build:
       - --without-selinux
       - --enable-kernel=2.6.0
       - --with-binutils={{deps.gnu.org/binutils.prefix}}/bin
+    linux/x86-64:
+      CFLAGS: -fPIC
+      CXXFLAGS: -fPIC
+      LDFLAGS: -pie
 
 test:
   dependencies:
@@ -94,6 +98,7 @@ test:
       test.c \
       -pthread \
       -static \
+      -fPIC \
       -pie
     ./test
   fixture: |
