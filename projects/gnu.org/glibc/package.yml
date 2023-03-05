@@ -28,6 +28,7 @@ build:
   script: |
     if test "{{hw.platform}}" != "linux"; then
       echo "glibc is only supported on Linux"
+      mkdir -p "{{prefix}}"
       touch {{prefix}}/linux-only
       exit 0
     fi
@@ -60,7 +61,6 @@ build:
       - xtrace
     ARGS:
       - --prefix={{ prefix }}
-      - --enable-static-pie
       - --disable-debug
       - --disable-dependency-tracking
       - --disable-silent-rules
