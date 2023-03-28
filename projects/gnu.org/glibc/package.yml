@@ -97,28 +97,29 @@ test:
       -fPIC \
       -pie
     ./test
-    ldd test
+    objdump -p test
 
 provides:
-  - bin/catchsegv
-  - bin/gencat
-  - bin/getconf
-  - bin/getent
-  - bin/iconv
-  - bin/ldd
-  - bin/locale
-  - bin/localedef
-  - bin/makedb
-  - bin/mtrace
-  - bin/pcprofiledump
-  - bin/pldd
-  - bin/rpcgen
-  - bin/sotruss
-  - bin/sprof
-  - bin/tzselect
-  - bin/xtrace  - sbin/iconvconfig
-  - sbin/ldconfig
-  - sbin/nscd
-  - sbin/sln
-  - sbin/zdump
-  - sbin/zic
+  linux:
+    - bin/catchsegv
+    - bin/gencat
+    - bin/getconf
+    - bin/getent
+    - bin/iconv
+    - bin/ldd
+    - bin/locale
+    - bin/localedef
+    - bin/makedb
+    - bin/mtrace
+    - bin/pcprofiledump
+    - bin/pldd
+    - bin/rpcgen
+    - bin/sotruss
+    - bin/sprof
+    - bin/tzselect
+    - bin/xtrace  - sbin/iconvconfig
+    - sbin/ldconfig
+    - sbin/nscd
+    - sbin/sln
+    - sbin/zdump
+    - sbin/zic
