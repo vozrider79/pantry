@@ -114,11 +114,11 @@ provides:
     - bin/mtrace
     - bin/pcprofiledump
     - bin/pldd
-    - bin/rpcgen
     - bin/sotruss
     - bin/sprof
     - bin/tzselect
-    - bin/xtrace  - sbin/iconvconfig
+    - bin/xtrace 
+    - sbin/iconvconfig
     - sbin/ldconfig
     - sbin/nscd
     - sbin/sln
