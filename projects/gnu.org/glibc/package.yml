@@ -61,11 +61,9 @@ build:
       - --with-binutils={{deps.gnu.org/binutils.prefix}}/bin
       # ChatGPT
       - --disable-multi-arch
-    CFLAGS: -O2
-    linux/x86-64:
-      CFLAGS: -O2 -fPIC
-      CXXFLAGS: -O2 -fPIC
-      LDFLAGS: -pie
+    CFLAGS: -O2 -fPIC
+    CXXFLAGS: -O2 -fPIC
+    LDFLAGS: -pie
 
 test:
   dependencies:
@@ -79,7 +77,7 @@ test:
     # Putting ourselves in the LD_LIBRARY_PATH breaks literally everything else...
     - export LD_LIBRARY_PATH="$(echo LD_LIBRARY_PATH | tr ':' '\n' | grep -v {{prefix}} | tr '\n' ':')"
 
-    - gcc -o test1 test.c -pthread $CFLAGS
+    - gcc -o test1 test.c -pthread -fPIC -pie
     - ./test1
 
     - find {{deps.gnu.org/gcc.prefix}} -name stdatomic.h
@@ -99,7 +97,9 @@ test:
         {{prefix}}/lib/crt1.o \
         {{prefix}}/lib/crtn.o \
         test.c \
-        -pthread
+        -pthread \
+        -fPIC \
+        -pie
     - objdump -p test2
     - ./test2
 
