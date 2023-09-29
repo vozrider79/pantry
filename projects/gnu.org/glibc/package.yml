@@ -79,8 +79,10 @@ test:
     # Putting ourselves in the LD_LIBRARY_PATH breaks literally everything else...
     - export LD_LIBRARY_PATH="$(echo LD_LIBRARY_PATH | tr ':' '\n' | grep -v {{prefix}} | tr '\n' ':')"
 
-    - gcc -o test1 test.c -pthread -fPIC -pie
+    - gcc -o test1 test.c -pthread $CFLAGS
     - ./test1
+
+    - find {{deps.gnu.org/gcc.prefix}} -name stdatomic.h
 
     - |
       gcc \
@@ -97,9 +99,7 @@ test:
         {{prefix}}/lib/crt1.o \
         {{prefix}}/lib/crtn.o \
         test.c \
-        -pthread \
-        -fPIC \
-        -pie
+        -pthread
     - objdump -p test2
     - ./test2
 
