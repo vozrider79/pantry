@@ -76,7 +76,7 @@ test:
     linux/aarch64:
       ARCH: aarch64
   script:
-    - gcc -o test1 test.c
+    - gcc -o test1 test.c -pthread -fPIC -pie
     - ./test1
 
     - |
@@ -95,7 +95,6 @@ test:
         {{prefix}}/lib/crtn.o \
         test.c \
         -pthread \
-        -static \
         -fPIC \
         -pie
     - objdump -p test2
