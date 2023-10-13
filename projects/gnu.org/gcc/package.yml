@@ -68,6 +68,7 @@ build:
     # means we're building with the exact same version FIXME
     - run: |
         ln -sf gcc cc
+        ln -sf ld cc
         ln -sf ../../../binutils/v\*/bin/ar ar
         ln -sf ../../../binutils/v\*/bin/nm nm
         ln -sf ../../../binutils/v\*/bin/ranlib ranlib

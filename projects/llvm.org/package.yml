@@ -53,6 +53,7 @@ build:
     # means we're building with the exact same version FIXME
     - run: |
         ln -sf clang cc
+        ln -sf clang ld
         ln -sf clang++ c++
         ln -sf clang-cpp cpp
         for x in ar as nm objcopy ranlib readelf strings strip; do
