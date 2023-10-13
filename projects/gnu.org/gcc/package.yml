@@ -69,9 +69,7 @@ build:
     - run: |
         ln -sf gcc cc
         ln -sf ld cc
-        ln -sf ../../../binutils/v\*/bin/ar ar
-        ln -sf ../../../binutils/v\*/bin/nm nm
-        ln -sf ../../../binutils/v\*/bin/ranlib ranlib
+        rm  ar nm ranlib # these are in binutils
       working-directory: ${{prefix}}/bin
 
   env:
@@ -131,7 +129,6 @@ test:
   - test "$(./test3)" = "Hello, world!"
 
 provides:
-  - bin/ar
   - bin/cc
   - bin/c++
   - bin/gc++
@@ -146,5 +143,3 @@ provides:
   - bin/gcov-tool
   - bin/gfortran
   - bin/lto-dump
-  - bin/nm
-  - bin/ranlib
