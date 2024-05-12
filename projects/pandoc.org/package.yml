@@ -50,8 +50,8 @@ build:
     - run: |
         if ! grep -q 'rpath,{{pkgx.prefix}}' settings; then
           sed -i \
-            -e 's|\(C compiler flags.*\)")|\1 -Wl,-pie")|' \
-            -e 's|\(C++ compiler flags.*\)")|\1 -Wl,-pie")|' \
+            -e 's|\(C compiler flags.*\)")|\1 -fPIC")|' \
+            -e 's|\(C++ compiler flags.*\)")|\1 -fPIC")|' \
             -e 's|\(C compiler link flags.*\)")|\1 -Wl,-pie")|' \
             settings
         fi
